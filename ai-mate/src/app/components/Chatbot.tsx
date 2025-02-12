@@ -135,7 +135,7 @@ const Chatbot: React.FC = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="bg-white">
       <div style={styles.conversation} className="text-black">
         {conversation.map((msg, index) => (
           <div
@@ -192,7 +192,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexDirection: 'column',
     gap: '10px',
     overflowY: 'auto',
-    maxHeight: '300px', // Uses a maximum height to allow scrolling when content grows
+    maxHeight: '600px', // Uses a maximum height to allow scrolling when content grows
   },
   message: {
     padding: '10px',
