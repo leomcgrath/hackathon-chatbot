@@ -1,7 +1,7 @@
 "use client";
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import React, { useState, KeyboardEvent } from 'react';
+import React, { useState, useEffect, useRef, KeyboardEvent } from 'react';
 
 // Define the shape of a chat message
 type Message = {
@@ -10,9 +10,20 @@ type Message = {
 };
 
 const Chatbot: React.FC = () => {
-  const [conversation, setConversation] = useState<Message[]>([]);
+  // Start with the initial bot message "Hvordan kan jeg hjelpe deg?"
+  const [conversation, setConversation] = useState<Message[]>([
+    { sender: 'bot', text: "Hvordan kan jeg hjelpe deg?" }
+  ]);
   const [userInput, setUserInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  
+  // Create a ref to scroll to the bottom when new messages are added
+  const conversationEndRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to the bottom whenever the conversation changes
+  useEffect(() => {
+    conversationEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [conversation]);
 
   const handleSendMessage = async (): Promise<void> => {
     if (!userInput.trim()) return;
@@ -89,9 +100,9 @@ const Chatbot: React.FC = () => {
       ClearView dashcam;Biltilbehør;https://example.com/clearview-dashcam;https://example.com/images/clearview-dashcam.jpg;1299;CV066;Dokumenter dine bilturer med ClearView dashcam. Opptak i full HD, bred synsvinkel og nattsyn for optimal sikkerhet.
       SmartBake ovn med WiFi;Kjøkkenutstyr;https://example.com/smartbake-ovn;https://example.com/images/smartbake-ovn.jpg;7499;SB067;Bak som en proff med SmartBake ovn. Fjernstyr temperatur og tid via app, og få perfekte resultater hver gang.
       
-      Her kommer spørsmålet til brukeren: ` + userInput;
+      Her kommer spørsmålet til brukeren: ${userInput}
+      `;
       const result = await model.generateContent(modifiedPrompt);
-
       const responseText = result.response.text();
 
       const botMessage: Message = { sender: 'bot', text: responseText };
@@ -128,6 +139,8 @@ const Chatbot: React.FC = () => {
             {msg.text}
           </div>
         ))}
+        {/* Dummy element to scroll into view */}
+        <div ref={conversationEndRef} />
       </div>
       <div style={styles.inputContainer} className="text-black">
         <input
@@ -139,7 +152,11 @@ const Chatbot: React.FC = () => {
           disabled={isLoading}
           style={styles.input}
         />
-        <button onClick={handleSendMessage} disabled={isLoading || !userInput.trim()} style={styles.button}>
+        <button
+          onClick={handleSendMessage}
+          disabled={isLoading || !userInput.trim()}
+          style={styles.button}
+        >
           Send
         </button>
       </div>
@@ -165,7 +182,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexDirection: 'column',
     gap: '10px',
     overflowY: 'auto',
-    height: '300px',
+    maxHeight: '300px', // Uses a maximum height to allow scrolling when content grows
   },
   message: {
     padding: '10px',
