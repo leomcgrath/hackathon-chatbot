@@ -9,10 +9,12 @@ type Message = {
   text: string;
 };
 
+var allPromts = "";
+
 const Chatbot: React.FC = () => {
   // Start with the initial bot message "Hvordan kan jeg hjelpe deg?"
   const [conversation, setConversation] = useState<Message[]>([
-    { sender: 'bot', text: "Hvordan kan jeg hjelpe deg?" }
+    { sender: 'bot', text: "Hei! Jeg heter Emrik, og er en e-handelsassistent. Hvordan kan jeg hjelpe deg?" }
   ]);
   const [userInput, setUserInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -38,8 +40,13 @@ const Chatbot: React.FC = () => {
       const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '');
       const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
+      allPromts += userInput + "\n";
+      console.log("dette er alle promtsene: " + allPromts);
+
       const modifiedPrompt = `
       Du er en e-handelassistent i en elektronikkbutikk. Under er all informasjon om produktene i butikken din. Hver rad representerer et produkt med navn, kategori, URL til produktinformasjon, URL til bilde, pris, ID og beskrivelse. 
+
+      Tidligere meldinger med kunden: ${allPromts}
 
       Produkt;Kategori;URL til produktinformasjon;URL til bilde (.jpg);Pris (NOK);ID;Beskrivelse
       SmartGlow LED-lamper;Belysning;https://example.com/smartglow-led-lamper;https://example.com/images/smartglow-led-lamper.jpg;299;SG001;Lys opp hjemmet ditt med SmartGlow LED-lamper, som tilbyr justerbar lysstyrke og fargetemperatur via en brukervennlig app. Perfekt for å skape den rette stemningen.
@@ -102,6 +109,9 @@ const Chatbot: React.FC = () => {
       
       Her kommer spørsmålet til brukeren: ${userInput}
       `;
+      
+      
+
       const result = await model.generateContent(modifiedPrompt);
       const responseText = result.response.text();
 
