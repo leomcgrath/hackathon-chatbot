@@ -107,6 +107,7 @@ const Chatbot: React.FC = () => {
       ClearView dashcam;Biltilbehør;https://example.com/clearview-dashcam;https://example.com/images/clearview-dashcam.jpg;1299;CV066;Dokumenter dine bilturer med ClearView dashcam. Opptak i full HD, bred synsvinkel og nattsyn for optimal sikkerhet.
       SmartBake ovn med WiFi;Kjøkkenutstyr;https://example.com/smartbake-ovn;https://example.com/images/smartbake-ovn.jpg;7499;SB067;Bak som en proff med SmartBake ovn. Fjernstyr temperatur og tid via app, og få perfekte resultater hver gang.
       
+      Unngå å bruke spesialtegn, og hold deg til vanlig norsk skriftspråk.
       Her kommer spørsmålet til brukeren: ${userInput}
       `;
       
