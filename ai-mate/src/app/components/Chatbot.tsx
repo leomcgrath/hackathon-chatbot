@@ -1,52 +1,46 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
 
-const Chatbot = () => {
-    const [messages, setMessages] = useState<{ sender: string; text: string }[]>([]);
-    const [input, setInput] = useState("");
+export default function Chatbot() {
+  const [input, setInput] = useState("");
+  const [response, setResponse] = useState("");
 
-    const sendMessage = async () => {
-        if (!input.trim()) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-        const userMessage = { sender: "user", text: input };
-        setMessages((prev) => [...prev, userMessage]);
+    try {
+      const res = await fetch("/api/gemini", {
+        method: "POST",
+        body: JSON.stringify({ question: input }),
+        headers: { "Content-Type": "application/json" },
+      });
 
-        try {
-            const response = await axios.post("/api/chat", { message: input });
-            const botReply = { sender: "bot", text: response.data.reply };
+      if (!res.ok) {
+        throw new Error(`Feil ved API-kall: ${res.status}`);
+      }
 
-            setMessages((prev) => [...prev, botReply]);
-        } catch (error) {
-            setMessages((prev) => [...prev, { sender: "bot", text: "Feil ved henting av svar" }]);
-        }
+      const data = await res.json();
+      setResponse(data.answer);
+    } catch (error) {
+      console.error("Feil i frontend:", error);
+      setResponse("Noe gikk galt, prøv igjen.");
+    }
+  };
 
-        setInput("");
-    };
-
-    return (
-        <div className="max-w-md mx-auto p-4 border rounded-lg shadow-md bg-white">
-            <h2 className="text-black font-bold mb-2">Chatbot</h2>
-            <div className="h-64 overflow-y-auto border p-2 mb-2">
-                {messages.map((msg, index) => (
-                    <div key={index} className={`p-2 ${msg.sender === "user" ? "text-right text-blue-500" : "text-left text-black"}`}>
-                        {msg.text}
-                    </div>
-                ))}
-            </div>
-            <div className="flex gap-2 text-black">
-                <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Skriv en melding..."
-                    className="flex-grow border p-2 rounded"
-                />
-                <button onClick={sendMessage} className="bg-blue-500 text-white p-2 rounded">Send</button>
-            </div>
-        </div>
-    );
-};
-
-export default Chatbot;
+  return (
+    <div className="p-4 border rounded-lg shadow-md max-w-md mx-auto">
+      <h2 className="text-black font-bold mb-2">Produkt Chatbot</h2>
+      <form onSubmit={handleSubmit} className="mb-2 text-black">
+        <input
+          className="border p-2 w-full"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Still et spørsmål..."
+        />
+        <button type="submit" className="bg-blue-500 text-white p-2 mt-2">Send</button>
+      </form>
+      {response && <p className="mt-2 p-2 border bg-gray-100 text-black">{response}</p>}
+    </div>
+  );
+}
